@@ -1,0 +1,17 @@
+# created by virtualenv automatically
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+*.pyc
+
+*.log
+*.pot
+*/*/*/__pycache__/
+*/*/__pycache__/
+*/__pycache__/
+
+/setup/__pycache__
+/db.sqlite3
