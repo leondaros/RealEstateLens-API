@@ -23,7 +23,7 @@ class Properties(admin.ModelAdmin):
         'property_type',
         'location'
     )
-    list_display_links = ('id','property_type','district')
+    list_display_links = ('id','property_type')
     list_per_page = 20
     search_fields = ('bedrooms','bathrooms','square_meters','price')
 
