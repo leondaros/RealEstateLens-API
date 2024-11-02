@@ -27,11 +27,8 @@ class Property(models.Model):
     price=models.FloatField(blank=False, null=False, validators=[MinValueValidator(0)])
     link=models.CharField(blank=False, null=False)
     listing_date=models.DateField()
-    latitude=models.FloatField(blank=False, null=False)
-    longitude = models.FloatField(blank=False, null=False)
     source=models.CharField(blank=False, null=False)
     property_type=models.CharField(choices=PROPERTY_TYPE, blank=False, null=False)
-    district=models.CharField(blank=False, null=False)
     location = models.ForeignKey(Location, null=True, on_delete= models.CASCADE)
 
     objects=models.Manager()
@@ -40,11 +37,9 @@ class Property(models.Model):
         return self.link
 
 class User(models.Model):
-
     name = models.CharField(blank=False, max_length=30)
     email = models.EmailField(blank=False, max_length=30)
     role=models.CharField(blank=False, null=False)
-    location = models.ForeignKey(Location, null=True, on_delete= models.CASCADE)
 
     objects=models.Manager()
 
