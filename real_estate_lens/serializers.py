@@ -15,3 +15,9 @@ class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model=Location
         fields= '__all__'
+
+class ListPropertiesLocationSerializer(serializers.ModelSerializer):
+    location_district=serializers.ReadOnlyField(source='location.district')
+    class Meta:
+        model=Property
+        fields=['location_district','price']

@@ -14,6 +14,9 @@ class Location(models.Model):
         return self.district
 
 class Property(models.Model):
+    class Meta:
+        verbose_name_plural='Properties'
+
     PROPERTY_TYPE=(
         ('C','Casa'),
         ('A','Apartamento'),
