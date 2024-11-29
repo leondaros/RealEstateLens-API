@@ -31,9 +31,9 @@ admin.site.register(Property,Properties)
 
 
 class Locations(admin.ModelAdmin):
-    list_display = ('id','district','city','latitude','longitude')
-    list_display_links = ('id','district','city')
+    list_display = ('id','name','location_type','geometry')
+    list_display_links = ('id',)
     list_per_page = 20
-    search_fields = ('district','city')
+    search_fields = ('id','name')
 
 admin.site.register(Location, Locations)

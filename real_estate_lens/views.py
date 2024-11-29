@@ -1,8 +1,6 @@
 from crypt import methods
 
 from rest_framework.decorators import action
-from rest_framework.views import APIView
-
 from real_estate_lens.models import User,Property,Location
 from real_estate_lens.serializers import (UserSerializer,
     LocationSerializer, PropertySerializer, ListPropertiesLocationSerializer)

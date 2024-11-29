@@ -1,17 +1,24 @@
-from django.db import models
+#from django.db import models
+from django.contrib.gis.db import models
 from django.core.validators import MinValueValidator
 
 
 class Location(models.Model):
-    district=models.CharField(max_length=100)
-    city=models.CharField(max_length=100)
-    latitude = models.FloatField(blank=False, null=False)
-    longitude = models.FloatField(blank=False, null=False)
+    LOCATION_TYPE=(
+        ('N','Neighborhood'),
+        ('CT','City'),
+        ('S','State'),
+        ('C','Country')
+    )
+
+    name=models.CharField(max_length=100)
+    location_type=models.CharField(max_length=2, choices=LOCATION_TYPE, blank=False, null=False, default='N')
+    geometry=models.MultiPolygonField(srid=4326, blank=True, null=True, geography=True)
 
     objects=models.Manager()
 
     def __str__(self):
-        return self.district
+        return self.name
 
 class Property(models.Model):
     class Meta:
@@ -32,7 +39,8 @@ class Property(models.Model):
     listing_date=models.DateField()
     source=models.CharField(max_length=100, blank=False, null=False)
     property_type=models.CharField(max_length=1, choices=PROPERTY_TYPE, blank=False, null=False)
-    location = models.ForeignKey(Location, null=True, on_delete= models.CASCADE)
+    location = models.ForeignKey(Location, null=True, blank=True, on_delete= models.SET_NULL)
+    coordinates = models.PointField(srid=4326, blank=False, null=True, geography=True)
 
     objects=models.Manager()
 

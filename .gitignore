@@ -12,6 +12,7 @@
 */*/*/__pycache__/
 */*/__pycache__/
 */__pycache__/
+*.csv
 
 /setup/__pycache__
 /db.sqlite3

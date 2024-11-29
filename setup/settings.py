@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'real_estate_lens',
     'rest_framework',
+    'django.contrib.gis',
 ]
 
 MIDDLEWARE = [
@@ -77,8 +78,15 @@ WSGI_APPLICATION = 'setup.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        #Apagar Caso funcione
+        #'ENGINE': 'django.db.backends.sqlite3',
+        #'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE' : 'django.contrib.gis.db.backends.postgis',
+        'NAME' : 'geodjango',
+        'USER': 'postgres',
+        'PASSWORD': "postgres",
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
