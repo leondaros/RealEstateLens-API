@@ -3,7 +3,7 @@ from crypt import methods
 from rest_framework.decorators import action
 from real_estate_lens.models import User,Property,Location
 from real_estate_lens.serializers import (UserSerializer,
-    LocationSerializer, PropertySerializer, ListPropertiesLocationSerializer)
+    LocationSerializer, PropertySerializer, LocationPropertiesSerializer)
 from rest_framework import viewsets, generics
 from django.db.models import Avg
 from rest_framework.response import Response
@@ -32,19 +32,6 @@ class LocationViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['get'], url_path='properties', url_name='properties')
     def list_properties(self, request, pk=None):
-        """
-        Lista todas as propriedades relacionadas a uma localização específica.
-        """
-        # Filtrar propriedades pela localização
-        properties = Property.objects.filter(location_id=pk)
-
-        # Serializar os dados
-        serializer = PropertySerializer(properties, many=True)
-
-        return Response(serializer.data, status=200)
-
-class ListPropertiesLocation(generics.ListAPIView):
-    def get_queryset(self):
-        queryset=Property.objects.filter(location_id=self.kwargs['pk'])
-        return queryset
-    serializer_class = ListPropertiesLocationSerializer
+        location = self.get_object()  # Get the current location instance
+        serializer = LocationPropertiesSerializer(location)
+        return Response(serializer.data)

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path,include
-from real_estate_lens.views import UserViewSet, LocationViewSet, PropertyViewSet, ListPropertiesLocation
+from real_estate_lens.views import UserViewSet, LocationViewSet, PropertyViewSet
 from rest_framework import routers
 
 router = routers.DefaultRouter()

@@ -9,15 +9,17 @@ class UserSerializer(serializers.ModelSerializer):
 class PropertySerializer(serializers.ModelSerializer):
     class Meta:
         model=Property
-        fields= '__all__'
+        fields= ['description', 'square_meters', 'bedrooms', 'bathrooms',
+                 'price', 'link', 'listing_date', 'source', 'property_type',
+                 'location', 'coordinates']
 
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model=Location
-        fields= '__all__'
+        fields= ['name','location_type','geometry']
 
-class ListPropertiesLocationSerializer(serializers.ModelSerializer):
-    location_name=serializers.ReadOnlyField(source='location.name')
+class LocationPropertiesSerializer(serializers.ModelSerializer):
+    properties = PropertySerializer(many=True, read_only=True)
     class Meta:
-        model=Property
-        fields=['location_name','price']
+        model=Location
+        fields=['name','location_type','geometry','properties']

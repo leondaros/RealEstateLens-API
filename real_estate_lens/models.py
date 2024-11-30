@@ -39,7 +39,7 @@ class Property(models.Model):
     listing_date=models.DateField(null=True)
     source=models.CharField(max_length=100, blank=False, null=False)
     property_type=models.CharField(max_length=1, choices=PROPERTY_TYPE, blank=False, null=False)
-    location = models.ForeignKey(Location, null=True, blank=True, on_delete= models.SET_NULL)
+    location = models.ForeignKey(Location, related_name='properties',null=True, blank=True, on_delete= models.SET_NULL)
     coordinates = models.PointField(srid=4326, blank=False, null=True, geography=True)
 
     objects=models.Manager()
