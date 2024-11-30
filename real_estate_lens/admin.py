@@ -12,7 +12,6 @@ admin.site.register(User,Users)
 class Properties(admin.ModelAdmin):
     list_display = (
         'id',
-        'description',
         'square_meters',
         'bedrooms',
         'bathrooms',
@@ -20,8 +19,7 @@ class Properties(admin.ModelAdmin):
         'link',
         'listing_date',
         'source',
-        'property_type',
-        'location'
+        'property_type'
     )
     list_display_links = ('id','property_type')
     list_per_page = 20
@@ -31,7 +29,7 @@ admin.site.register(Property,Properties)
 
 
 class Locations(admin.ModelAdmin):
-    list_display = ('id','name','location_type','geometry')
+    list_display = ('id','name','location_type')
     list_display_links = ('id',)
     list_per_page = 20
     search_fields = ('id','name')
