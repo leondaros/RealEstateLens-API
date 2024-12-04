@@ -14,6 +14,7 @@ class Location(models.Model):
     name=models.CharField(max_length=100)
     location_type=models.CharField(max_length=2, choices=LOCATION_TYPE, blank=False, null=False, default='N')
     geometry=models.MultiPolygonField(srid=4326, blank=True, null=True, geography=True)
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='sub_locations')
 
     objects=models.Manager()
 
