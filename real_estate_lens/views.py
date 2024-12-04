@@ -3,7 +3,8 @@ from crypt import methods
 from rest_framework.decorators import action
 from real_estate_lens.models import User,Property,Location
 from real_estate_lens.serializers import (UserSerializer,
-    LocationSerializer, PropertySerializer, LocationPropertiesSerializer)
+    LocationSerializer, PropertySerializer, LocationPropertiesSerializer,
+    LocationDetailsSerializer)
 from rest_framework import viewsets, generics
 from django.db.models import Avg
 from rest_framework.response import Response
@@ -34,4 +35,10 @@ class LocationViewSet(viewsets.ModelViewSet):
     def list_properties(self, request, pk=None):
         location = self.get_object()  # Get the current location instance
         serializer = LocationPropertiesSerializer(location)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'], url_path='sub_locations', url_name='sub_locations')
+    def sub_locations(self, request, pk=None):
+        location = self.get_object()  # Get the current location instance
+        serializer = LocationDetailsSerializer(location)
         return Response(serializer.data)

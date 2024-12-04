@@ -71,5 +71,5 @@ def generate_random_point_in_multipolygon(multipolygon):
 
 
 if __name__ == "__main__":
-    csv_file_path = "data_normalizados - data_normalizados.csv"  # Substitua pelo caminho do seu arquivo CSV
+    csv_file_path = "../data_normalizados - data_normalizados.csv"  # Substitua pelo caminho do seu arquivo CSV
     populate_properties_from_csv(csv_file_path)

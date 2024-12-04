@@ -37,7 +37,7 @@ def import_locations_from_csv(file_path):
 
 if __name__ == "__main__":
     # Caminho para o arquivo CSV
-    file_path = "out.csv"
+    file_path = "../out.csv"
 
     csv.field_size_limit(sys.maxsize)
 

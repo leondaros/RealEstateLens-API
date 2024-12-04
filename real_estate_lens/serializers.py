@@ -23,3 +23,9 @@ class LocationPropertiesSerializer(serializers.ModelSerializer):
     class Meta:
         model=Location
         fields=['name','location_type','geometry','properties']
+
+class LocationDetailsSerializer(serializers.ModelSerializer):
+    sub_locations = LocationSerializer(many=True, read_only=True)
+    class Meta:
+        model=Location
+        fields = ['name', 'location_type', 'geometry', 'sub_locations']

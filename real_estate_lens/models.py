@@ -45,6 +45,23 @@ class Property(models.Model):
 
     objects=models.Manager()
 
+    def update_location(self, location_id):
+
+        try:
+            location = Location.objects.get(id=location_id)
+        except Location.DoesNotExist:
+            raise ValueError("Location com o ID fornecido não existe.")
+
+        # Verifica se ambos os campos geométricos existem
+        if not self.coordinates or not location.geometry:
+            raise ValueError("Os dados geométricos da Propriedade ou Localização estão ausentes.")
+
+        if self.coordinates.within(location.geometry):
+            self.location=location
+            self.save()
+            return True
+        return False
+
     def __str__(self):
         return self.link
 
