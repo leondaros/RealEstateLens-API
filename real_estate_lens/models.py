@@ -1,6 +1,7 @@
 #from django.db import models
 from django.contrib.gis.db import models
 from django.core.validators import MinValueValidator
+from django.db.models import Avg
 
 
 class Location(models.Model):
@@ -17,6 +18,11 @@ class Location(models.Model):
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='sub_locations')
 
     objects=models.Manager()
+
+    def average_price(self):
+        # Calcula a média dos preços dos imóveis relacionados
+        avg_price = self.properties.aggregate(Avg('price'))['price__avg']
+        return round(avg_price,2) if avg_price is not None else 0.00
 
     def __str__(self):
         return self.name
