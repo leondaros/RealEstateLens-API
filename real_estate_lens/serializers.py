@@ -16,30 +16,53 @@ class PropertySerializer(serializers.ModelSerializer):
                  'location', 'coordinates']
 
 class LocationSerializer(serializers.ModelSerializer):
+    center = serializers.SerializerMethodField()
+    id = serializers.ReadOnlyField()
     class Meta:
         model=Location
-        fields= ['name','location_type','geometry','average_price']
+        fields= ['id','name','location_type','geometry','average_price','center']
+
+    def get_center(self, obj):
+        centroid = obj.center()
+        if centroid:
+            return {'type': 'Point', 'coordinates': [centroid.y, centroid.x]}
+        return None
 
 class LocationPropertiesSerializer(serializers.ModelSerializer):
     properties = serializers.SerializerMethodField()
+    center = serializers.SerializerMethodField()
+    id = serializers.ReadOnlyField()
     class Meta:
         model=Location
-        fields=['name','location_type','geometry','average_price','properties']
+        fields=['id','name','location_type','geometry','average_price','center','properties']
 
     def get_properties(self, obj):
         # As propriedades já estão pré-carregadas com prefetch_related
         properties = obj.properties.all()
         return PropertySerializer(properties, many=True).data
+
+    def get_center(self, obj):
+        centroid = obj.center()
+        if centroid:
+            return {'type': 'Point', 'coordinates': [centroid.x, centroid.y]}
+        return None
 
 class LocationDetailsSerializer(serializers.ModelSerializer):
     sub_locations = LocationPropertiesSerializer(many=True, read_only=True)
     properties = serializers.SerializerMethodField()
+    center = serializers.SerializerMethodField()
     class Meta:
         model=Location
-        fields = ['name', 'location_type', 'geometry', 'average_price', 'properties', 'sub_locations']
+        fields = ['name', 'location_type', 'geometry', 'average_price', 'center', 'properties', 'sub_locations']
 
     def get_properties(self, obj):
         # As propriedades já estão pré-carregadas com prefetch_related
         properties = obj.properties.all()
         return PropertySerializer(properties, many=True).data
+
+    def get_center(self, obj):
+        centroid = obj.center()
+        if centroid:
+            return {'type': 'Point', 'coordinates': [centroid.x, centroid.y]}
+        return None
 

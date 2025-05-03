@@ -24,6 +24,19 @@ class Location(models.Model):
         avg_price = self.properties.aggregate(Avg('price'))['price__avg']
         return round(avg_price,2) if avg_price is not None else 0.00
 
+    def center(self):
+        if not self.geometry:
+            return None
+
+        # geometry.centroid is already a Point
+        center_point = self.geometry.point_on_surface
+
+        # ensure it has the correct SRID
+        if center_point.srid != self.geometry.srid:
+            center_point.srid = self.geometry.srid
+
+        return center_point
+
     def __str__(self):
         return self.name
 
