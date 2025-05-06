@@ -45,3 +45,20 @@ class LocationViewSet(viewsets.ModelViewSet):
         location = self.get_object()  # Get the current location instance
         serializer = LocationDetailsSerializer(location)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'], url_path='search', url_name='search')
+    def search(self, request):
+        """
+        Search locations by name containing the given string.
+        String must be at least 3 characters long.
+        """
+        search_term = request.query_params.get('q', '')
+        if len(search_term) < 3:
+            return Response(
+                {"error": "Search term must be at least 3 characters long"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        locations = Location.objects.filter(name__icontains=search_term)
+        serializer = LocationSerializer(locations, many=True)
+        return Response(serializer.data)
