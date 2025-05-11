@@ -40,8 +40,8 @@ class LocationViewSet(viewsets.ModelViewSet):
         serializer = LocationPropertiesSerializer(location)
         return Response(serializer.data)
 
-    @action(detail=True, methods=['get'], url_path='sub_locations', url_name='sub_locations')
-    def sub_locations(self, request, pk=None):
+    @action(detail=True, methods=['get'], url_path='details', url_name='details')
+    def details(self, request, pk=None):
         location = self.get_object()  # Get the current location instance
         serializer = LocationDetailsSerializer(location)
         return Response(serializer.data)
