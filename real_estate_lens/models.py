@@ -2,7 +2,7 @@
 from django.contrib.gis.db import models
 from django.core.validators import MinValueValidator
 from django.db.models import Avg
-
+from django.db.models import UniqueConstraint
 
 class Location(models.Model):
     LOCATION_TYPE=(
@@ -84,10 +84,46 @@ class Property(models.Model):
     def __str__(self):
         return self.link
 
+class FavoriteLocation(models.Model):
+    user = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+        related_name='favorite_locations_links'
+    )
+    location = models.ForeignKey(
+        'Location',
+        on_delete=models.CASCADE,
+        related_name='favorited_by_links'
+    )
+    favorited_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # Nome explícito da tabela, em snake_case
+        db_table = 'user_favorite_locations'
+        # Constraint moderna e nomeada
+        constraints = [
+            UniqueConstraint(
+                fields=['user', 'location'],
+                name='uniq_user_favorite_location'
+            )
+        ]
+        # Ordenação padrão (por data decrescente)
+        ordering = ['-favorited_at']
+
+    def __str__(self):
+        return f'{self.user} ❤️ {self.location}'
+
 class User(models.Model):
     name = models.CharField(blank=False, max_length=30)
     email = models.EmailField(blank=False, max_length=30)
     role=models.CharField(max_length=100, blank=False, null=False)
+
+    favorite_locations = models.ManyToManyField(
+        'Location',
+        through='FavoriteLocation',
+        related_name='favorited_by',
+        blank=True
+    )
 
     objects=models.Manager()
 

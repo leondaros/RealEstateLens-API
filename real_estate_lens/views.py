@@ -14,6 +14,46 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    @action(detail=True,methods=['post'],url_path='toggle-favorite',url_name='toggle-favorite')
+    def toggle_favorite(self, request, pk=None):
+        """
+        POST /users/{user_id}/toggle-favorite/
+        Body: { "location_id": <id> }
+        -> cria ou remove o favorite para essa location.
+        """
+        user = self.get_object()
+        location_id = request.data.get('location_id')
+        if not location_id:
+            return Response(
+                {"detail": "É preciso enviar 'location_id' no body."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            loc = Location.objects.get(pk=location_id)
+        except Location.DoesNotExist:
+            return Response(
+                {"detail": "Location não encontrada."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        fav_qs = FavoriteLocation.objects.filter(user=user, location=loc)
+        if fav_qs.exists():
+            # já era favorito → desfavorita
+            fav_qs.delete()
+            return Response(
+                {"detail": "Location removida dos favoritos."},
+                status=status.HTTP_204_NO_CONTENT
+            )
+        else:
+            # não era favorito → cria
+            FavoriteLocation.objects.create(user=user, location=loc)
+            serializer = LocationSerializer(loc)
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED
+            )
+
 
 class PropertyViewSet(viewsets.ModelViewSet):
     queryset = Property.objects.all()

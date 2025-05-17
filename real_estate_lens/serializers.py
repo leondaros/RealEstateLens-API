@@ -4,9 +4,13 @@ from django.db.models import Avg
 import locale
 
 class UserSerializer(serializers.ModelSerializer):
+    favorite_locations = serializers.SerializerMethodField()
     class Meta:
         model=User
-        fields= '__all__'
+        fields= ['id', 'name', 'email', 'role', 'favorite_locations']
+
+    def get_favorite_locations(self, obj):
+        return LocationSummarySerializer(obj.favorite_locations.all(), many=True).data
 
 class PropertySerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,6 +18,12 @@ class PropertySerializer(serializers.ModelSerializer):
         fields= ['description', 'square_meters', 'bedrooms', 'bathrooms',
                  'price', 'link', 'listing_date', 'source', 'property_type',
                  'location', 'coordinates']
+
+class LocationSummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        # apenas os campos que você quer expor
+        fields = ['id', 'name', 'location_type']
 
 class LocationSerializer(serializers.ModelSerializer):
     center = serializers.SerializerMethodField()
