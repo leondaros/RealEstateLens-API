@@ -1,7 +1,7 @@
 from crypt import methods
 
 from rest_framework.decorators import action
-from real_estate_lens.models import User,Property,Location
+from real_estate_lens.models import User,Property,Location, FavoriteLocation
 from real_estate_lens.serializers import (UserSerializer,
     LocationSerializer, PropertySerializer, LocationPropertiesSerializer,
     LocationDetailsSerializer)
@@ -41,14 +41,15 @@ class UserViewSet(viewsets.ModelViewSet):
         if fav_qs.exists():
             # já era favorito → desfavorita
             fav_qs.delete()
+            serializer = UserSerializer(user)
             return Response(
-                {"detail": "Location removida dos favoritos."},
-                status=status.HTTP_204_NO_CONTENT
+                serializer.data,
+                status=status.HTTP_200_OK
             )
         else:
             # não era favorito → cria
             FavoriteLocation.objects.create(user=user, location=loc)
-            serializer = LocationSerializer(loc)
+            serializer = UserSerializer(user)
             return Response(
                 serializer.data,
                 status=status.HTTP_201_CREATED

@@ -63,7 +63,7 @@ class LocationDetailsSerializer(serializers.ModelSerializer):
     center = serializers.SerializerMethodField()
     class Meta:
         model=Location
-        fields = ['name', 'location_type', 'geometry', 'average_price', 'center', 'properties', 'sub_locations']
+        fields = ['id','name', 'location_type', 'geometry', 'average_price', 'center', 'properties', 'sub_locations']
 
     def get_properties(self, obj):
         # As propriedades já estão pré-carregadas com prefetch_related
