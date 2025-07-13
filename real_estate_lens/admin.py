@@ -10,10 +10,10 @@ class FavoriteLocationInline(admin.TabularInline):
     verbose_name_plural = "Favoritos"
 
 class Users(admin.ModelAdmin):
-    list_display = ('id','name','email','role')
-    list_display_links = ('id','name')
+    list_display = ('id', 'username', 'first_name', 'last_name', 'role')
+    list_display_links = ('id', 'username')
     list_per_page = 20
-    search_fields = ('name','email')
+    search_fields = ('username', 'email')
     inlines = [FavoriteLocationInline]
 
 admin.site.register(User,Users)

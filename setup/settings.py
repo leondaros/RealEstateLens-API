@@ -142,3 +142,11 @@ CORS_ALLOW_ALL_ORIGINS = True
 INTERNAL_IPS = [
     '127.0.0.1'  # Para localhost
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+AUTH_USER_MODEL = 'real_estate_lens.User'

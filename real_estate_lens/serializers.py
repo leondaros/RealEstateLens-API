@@ -1,7 +1,10 @@
 from rest_framework import serializers
-from real_estate_lens.models import User,Property,Location
+from django.contrib.auth import get_user_model
+from real_estate_lens.models import Property,Location
 from django.db.models import Avg
 import locale
+
+User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     favorite_locations = serializers.SerializerMethodField()
@@ -11,6 +14,22 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_favorite_locations(self, obj):
         return LocationSummarySerializer(obj.favorite_locations.all(), many=True).data
+    
+class UserRegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password', 'role')
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password'],
+            role=validated_data.get('role', '')
+        )
+        return user
 
 class PropertySerializer(serializers.ModelSerializer):
     class Meta:

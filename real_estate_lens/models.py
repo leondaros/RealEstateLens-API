@@ -1,8 +1,10 @@
 #from django.db import models
+from django.conf import settings
 from django.contrib.gis.db import models
 from django.core.validators import MinValueValidator
 from django.db.models import Avg
 from django.db.models import UniqueConstraint
+from django.contrib.auth.models import AbstractUser
 
 class Location(models.Model):
     LOCATION_TYPE=(
@@ -86,7 +88,7 @@ class Property(models.Model):
 
 class FavoriteLocation(models.Model):
     user = models.ForeignKey(
-        'User',
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='favorite_locations_links'
     )
@@ -113,9 +115,8 @@ class FavoriteLocation(models.Model):
     def __str__(self):
         return f'{self.user} ❤️ {self.location}'
 
-class User(models.Model):
-    name = models.CharField(blank=False, max_length=30)
-    email = models.EmailField(blank=False, max_length=30)
+class User(AbstractUser):
+    # Campos extras
     role=models.CharField(max_length=100, blank=False, null=False)
 
     favorite_locations = models.ManyToManyField(

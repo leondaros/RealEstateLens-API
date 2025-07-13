@@ -1,14 +1,17 @@
 from crypt import methods
 
 from rest_framework.decorators import action
-from real_estate_lens.models import User,Property,Location, FavoriteLocation
-from real_estate_lens.serializers import (UserSerializer,
+from real_estate_lens.models import Property,Location, FavoriteLocation
+from real_estate_lens.serializers import (UserRegisterSerializer, UserSerializer,
     LocationSerializer, PropertySerializer, LocationPropertiesSerializer,
     LocationDetailsSerializer)
 from rest_framework import viewsets, generics
 from django.db.models import Avg, Prefetch
 from rest_framework.response import Response
 from rest_framework import status
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -55,6 +58,9 @@ class UserViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_201_CREATED
             )
 
+class UserRegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserRegisterSerializer
 
 class PropertyViewSet(viewsets.ModelViewSet):
     queryset = Property.objects.all()
