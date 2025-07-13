@@ -4,7 +4,7 @@ from django.contrib.gis.db import models
 from django.core.validators import MinValueValidator
 from django.db.models import Avg
 from django.db.models import UniqueConstraint
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
 
 class Location(models.Model):
     LOCATION_TYPE=(
@@ -126,7 +126,7 @@ class User(AbstractUser):
         blank=True
     )
 
-    objects=models.Manager()
+    objects=UserManager()
 
     def __str__(self):
-        return self.name
+        return self.username

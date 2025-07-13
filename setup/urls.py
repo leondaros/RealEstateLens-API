@@ -15,8 +15,8 @@ router.register('locations',LocationViewSet,basename='Locations')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',include(router.urls)),
     path('users/register/', UserRegisterView.as_view(), name='user-register'),
+    path('',include(router.urls)),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
