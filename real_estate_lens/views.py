@@ -10,6 +10,8 @@ from django.db.models import Avg, Prefetch
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import get_user_model
+from rest_framework.permissions import AllowAny
+
 
 User = get_user_model()
 
@@ -61,6 +63,7 @@ class UserViewSet(viewsets.ModelViewSet):
 class UserRegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserRegisterSerializer
+    permission_classes = [AllowAny]
 
 class PropertyViewSet(viewsets.ModelViewSet):
     queryset = Property.objects.all()
