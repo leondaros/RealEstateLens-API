@@ -11,6 +11,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.views import TokenObtainPairView
+from real_estate_lens.serializers import CustomTokenObtainPairSerializer
 
 
 User = get_user_model()
@@ -112,3 +114,6 @@ class LocationViewSet(viewsets.ModelViewSet):
         locations = Location.objects.filter(name__icontains=search_term)
         serializer = LocationSerializer(locations, many=True)
         return Response(serializer.data)
+    
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer

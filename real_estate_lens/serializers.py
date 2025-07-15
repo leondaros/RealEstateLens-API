@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from real_estate_lens.models import Property,Location
 from django.db.models import Avg
-import locale
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 User = get_user_model()
 
@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
     favorite_locations = serializers.SerializerMethodField()
     class Meta:
         model=User
-        fields= ['id', 'name', 'email', 'role', 'favorite_locations']
+        fields= ['id', 'username', 'email', 'role', 'favorite_locations']
 
     def get_favorite_locations(self, obj):
         return LocationSummarySerializer(obj.favorite_locations.all(), many=True).data
@@ -95,3 +95,13 @@ class LocationDetailsSerializer(serializers.ModelSerializer):
             return {'type': 'Point', 'coordinates': [centroid.x, centroid.y]}
         return None
 
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        data['user'] = {
+            'id': self.user.id,
+            'username': self.user.username,
+            'email': self.user.email,
+            'role': self.user.role
+        }
+        return data
