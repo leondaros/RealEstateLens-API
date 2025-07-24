@@ -1,5 +1,3 @@
-from crypt import methods
-
 from rest_framework.decorators import action
 from real_estate_lens.models import Property,Location, FavoriteLocation
 from real_estate_lens.serializers import (UserRegisterSerializer, UserSerializer,
@@ -13,6 +11,10 @@ from django.contrib.auth import get_user_model
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from real_estate_lens.serializers import CustomTokenObtainPairSerializer
+import os
+import certifi
+os.environ['SSL_CERT_FILE'] = certifi.where()
+import requests
 
 
 User = get_user_model()
@@ -114,6 +116,51 @@ class LocationViewSet(viewsets.ModelViewSet):
         locations = Location.objects.filter(name__icontains=search_term)
         serializer = LocationSerializer(locations, many=True)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=['get'])
+    def schools(self, request, pk=None):
+        location = self.get_object()
+        import json
+        from shapely.geometry import shape, Point
+
+        polygon_geojson = location.geometry.geojson
+        polygon = shape(json.loads(polygon_geojson))
+
+        minx, miny, maxx, maxy = polygon.bounds
+
+        query = f"""
+        [out:json][timeout:25];
+        (
+        node["amenity"="school"]({miny},{minx},{maxy},{maxx});
+        way["amenity"="school"]({miny},{minx},{maxy},{maxx});
+        relation["amenity"="school"]({miny},{minx},{maxy},{maxx});
+        );
+        out center;
+        """
+        overpass_url = "https://overpass-api.de/api/interpreter"
+        try:
+            response = requests.post(overpass_url, data=query, timeout=30,verify=False)
+            response.raise_for_status()
+            data = response.json().get("elements", [])
+        except Exception as e:
+            return Response({"error": "Erro ao consultar Overpass API", "details": str(e)}, status=503)
+
+        schools = []
+        for el in data:
+            if "lat" in el and "lon" in el:
+                pt = Point(el["lon"], el["lat"])
+            elif "center" in el:
+                pt = Point(el["center"]["lon"], el["center"]["lat"])
+            else:
+                continue
+            if polygon.contains(pt):
+                schools.append({
+                    "name": el.get("tags", {}).get("name"),
+                    "lat": pt.y,
+                    "lon": pt.x
+                })
+
+        return Response(data)
     
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
