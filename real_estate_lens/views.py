@@ -14,8 +14,7 @@ from real_estate_lens.serializers import CustomTokenObtainPairSerializer
 import os
 import certifi
 os.environ['SSL_CERT_FILE'] = certifi.where()
-import requests
-
+from real_estate_lens.utils.osm_utils import fetch_osm_pois
 
 User = get_user_model()
 
@@ -120,47 +119,96 @@ class LocationViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def schools(self, request, pk=None):
         location = self.get_object()
-        import json
-        from shapely.geometry import shape, Point
-
-        polygon_geojson = location.geometry.geojson
-        polygon = shape(json.loads(polygon_geojson))
-
-        minx, miny, maxx, maxy = polygon.bounds
-
-        query = f"""
-        [out:json][timeout:25];
-        (
-        node["amenity"="school"]({miny},{minx},{maxy},{maxx});
-        way["amenity"="school"]({miny},{minx},{maxy},{maxx});
-        relation["amenity"="school"]({miny},{minx},{maxy},{maxx});
-        );
-        out center;
-        """
-        overpass_url = "https://overpass-api.de/api/interpreter"
+        filters = [
+            {"key": "amenity", "values": ["school", "college", "university"]}
+        ]
         try:
-            response = requests.post(overpass_url, data=query, timeout=30,verify=False)
-            response.raise_for_status()
-            data = response.json().get("elements", [])
+            pois = fetch_osm_pois(location.geometry.geojson, filters, verify=True) # (verify=True para produção)
+            return Response(pois)
         except Exception as e:
             return Response({"error": "Erro ao consultar Overpass API", "details": str(e)}, status=503)
 
-        schools = []
-        for el in data:
-            if "lat" in el and "lon" in el:
-                pt = Point(el["lon"], el["lat"])
-            elif "center" in el:
-                pt = Point(el["center"]["lon"], el["center"]["lat"])
-            else:
-                continue
-            if polygon.contains(pt):
-                schools.append({
-                    "name": el.get("tags", {}).get("name"),
-                    "lat": pt.y,
-                    "lon": pt.x
-                })
+    @action(detail=True, methods=['get'])
+    def leisure(self, request, pk=None):
+        location = self.get_object()
+        filters = [
+            {"key": "leisure", "values": [
+                "park", "playground", "sports_centre", "pitch", 
+                "stadium", "recreation_ground", "dog_park"
+            ]},
+            {"key": "natural", "values": ["beach"]},
+            {"key": "tourism", "values": ["picnic_site", "viewpoint", "zoo"]}
+        ]
+        try:
+            pois = fetch_osm_pois(location.geometry.geojson, filters, verify=True) # (verify=True para produção)
+            return Response(pois)
+        except Exception as e:
+            return Response({"error": "Erro ao consultar Overpass API", "details": str(e)}, status=503)    
 
-        return Response(data)
-    
+    @action(detail=True, methods=['get'])
+    def mobility(self, request, pk=None):
+        location = self.get_object()
+        filters = [
+            {"key": "amenity", "values": ["bus_station", "taxi"]},
+            {"key": "public_transport", "values": ["station", "platform"]}
+        ]
+        try:
+            pois = fetch_osm_pois(location.geometry.geojson, filters, verify=True) # (verify=True para produção)
+            return Response(pois)
+        except Exception as e:
+            return Response({"error": "Erro ao consultar Overpass API", "details": str(e)}, status=503)    
+
+    @action(detail=True, methods=['get'])
+    def commerce(self, request, pk=None):
+        location = self.get_object()
+        filters = [
+            {"key": "shop", "values": [
+                # Food & beverages
+                "supermarket", "convenience", "bakery", "butcher", "greengrocer", "alcohol",
+                "beverages", "cheese", "chocolate", "ice_cream", "seafood", "tea", "coffee", "deli", "pastry",
+                # General store, department store, mall, variety, gift, craft, kiosk
+                "general", "department_store", "mall", "variety_store", "gift", "craft", "kiosk",
+                # Clothing, shoes, accessories
+                "clothes", "shoes", "boutique", "accessories", "jewelry", "watch", "bag",
+                # Other
+                "stationery"
+            ]},
+            {"key": "amenity", "values": [
+                "restaurant", "ice_cream", "fast_food", "cafe", "bar", "food_court",
+                "bank", "atm", "post_office", "hairdresser", "laundry", "charging_station"
+            ]}
+        ]
+
+
+        try:
+            pois = fetch_osm_pois(location.geometry.geojson, filters, verify=True) # (verify=True para produção)
+            return Response(pois)
+        except Exception as e:
+            return Response({"error": "Erro ao consultar Overpass API", "details": str(e)}, status=503)    
+
+    @action(detail=True, methods=['get'])
+    def health(self, request, pk=None):
+        location = self.get_object()
+        filters = [
+            {"key": "amenity", "values": [
+                "hospital",
+                "clinic",
+                "pharmacy",
+                "doctors",
+                "dentist",
+                "laboratory",
+                "healthcare",
+                "nursing_home",
+                "physiotherapist",
+                "veterinary"
+            ]}
+        ]
+        try:
+            pois = fetch_osm_pois(location.geometry.geojson, filters, verify=True)
+            return Response(pois)
+        except Exception as e:
+            return Response({"error": "Erro ao consultar Overpass API", "details": str(e)}, status=503)
+
+
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
