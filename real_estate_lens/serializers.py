@@ -49,7 +49,7 @@ class LocationSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
     class Meta:
         model=Location
-        fields= ['id','name','location_type','geometry','average_price','center']
+        fields= ['id','name','location_type','geometry','average_price_per_m2','center']
 
     def get_center(self, obj):
         centroid = obj.center()
@@ -63,7 +63,7 @@ class LocationPropertiesSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
     class Meta:
         model=Location
-        fields=['id','name','location_type','geometry','average_price','center','properties']
+        fields=['id','name','location_type','geometry','average_price_per_m2','center','properties']
 
     def get_properties(self, obj):
         # As propriedades já estão pré-carregadas com prefetch_related
@@ -82,7 +82,7 @@ class LocationDetailsSerializer(serializers.ModelSerializer):
     center = serializers.SerializerMethodField()
     class Meta:
         model=Location
-        fields = ['id','name', 'location_type', 'geometry', 'average_price', 'center', 'properties', 'sub_locations']
+        fields = ['id','name', 'location_type', 'geometry', 'average_price_per_m2', 'center', 'properties', 'sub_locations']
 
     def get_properties(self, obj):
         # As propriedades já estão pré-carregadas com prefetch_related

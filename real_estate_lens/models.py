@@ -2,7 +2,7 @@
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.core.validators import MinValueValidator
-from django.db.models import Avg
+from django.db.models import Avg, Sum
 from django.db.models import UniqueConstraint
 from django.contrib.auth.models import AbstractUser, UserManager
 
@@ -20,6 +20,21 @@ class Location(models.Model):
     parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='sub_locations')
 
     objects=models.Manager()
+
+    def average_price_per_m2(self):
+        aggregated = self.properties.aggregate(
+            total_price=Sum('price'),
+            total_area=Sum('square_meters')
+        )
+
+        total_price = aggregated['total_price'] or 0
+        total_area = aggregated['total_area'] or 0
+
+        if total_area == 0:
+            return 0.00
+
+        avg_price_m2 = total_price / total_area
+        return round(avg_price_m2, 2)
 
     def average_price(self):
         # Calcula a média dos preços dos imóveis relacionados

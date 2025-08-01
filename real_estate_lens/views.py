@@ -15,6 +15,8 @@ import os
 import certifi
 os.environ['SSL_CERT_FILE'] = certifi.where()
 from real_estate_lens.utils.osm_utils import fetch_osm_pois
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 User = get_user_model()
 
@@ -93,6 +95,7 @@ class LocationViewSet(viewsets.ModelViewSet):
         serializer = LocationPropertiesSerializer(location)
         return Response(serializer.data)
 
+    @method_decorator(cache_page(60 * 60 * 24))
     @action(detail=True, methods=['get'], url_path='details', url_name='details')
     def details(self, request, pk=None):
         location = self.get_object()  # Get the current location instance
@@ -116,6 +119,7 @@ class LocationViewSet(viewsets.ModelViewSet):
         serializer = LocationSerializer(locations, many=True)
         return Response(serializer.data)
     
+    @method_decorator(cache_page(60 * 60 * 24))
     @action(detail=True, methods=['get'])
     def schools(self, request, pk=None):
         location = self.get_object()
@@ -123,11 +127,12 @@ class LocationViewSet(viewsets.ModelViewSet):
             {"key": "amenity", "values": ["school", "college", "university"]}
         ]
         try:
-            pois = fetch_osm_pois(location.geometry.geojson, filters, verify=True) # (verify=True para produção)
+            pois = fetch_osm_pois(location.geometry.geojson, filters, verify=True)
             return Response(pois)
         except Exception as e:
             return Response({"error": "Erro ao consultar Overpass API", "details": str(e)}, status=503)
 
+    @method_decorator(cache_page(60 * 60 * 24))
     @action(detail=True, methods=['get'])
     def leisure(self, request, pk=None):
         location = self.get_object()
@@ -140,11 +145,12 @@ class LocationViewSet(viewsets.ModelViewSet):
             {"key": "tourism", "values": ["picnic_site", "viewpoint", "zoo"]}
         ]
         try:
-            pois = fetch_osm_pois(location.geometry.geojson, filters, verify=True) # (verify=True para produção)
+            pois = fetch_osm_pois(location.geometry.geojson, filters, verify=True)
             return Response(pois)
         except Exception as e:
-            return Response({"error": "Erro ao consultar Overpass API", "details": str(e)}, status=503)    
+            return Response({"error": "Erro ao consultar Overpass API", "details": str(e)}, status=503)
 
+    @method_decorator(cache_page(60 * 60 * 24))
     @action(detail=True, methods=['get'])
     def mobility(self, request, pk=None):
         location = self.get_object()
@@ -153,24 +159,21 @@ class LocationViewSet(viewsets.ModelViewSet):
             {"key": "public_transport", "values": ["station", "platform"]}
         ]
         try:
-            pois = fetch_osm_pois(location.geometry.geojson, filters, verify=True) # (verify=True para produção)
+            pois = fetch_osm_pois(location.geometry.geojson, filters, verify=True)
             return Response(pois)
         except Exception as e:
-            return Response({"error": "Erro ao consultar Overpass API", "details": str(e)}, status=503)    
+            return Response({"error": "Erro ao consultar Overpass API", "details": str(e)}, status=503)
 
+    @method_decorator(cache_page(60 * 60 * 24))
     @action(detail=True, methods=['get'])
     def commerce(self, request, pk=None):
         location = self.get_object()
         filters = [
             {"key": "shop", "values": [
-                # Food & beverages
                 "supermarket", "convenience", "bakery", "butcher", "greengrocer", "alcohol",
                 "beverages", "cheese", "chocolate", "ice_cream", "seafood", "tea", "coffee", "deli", "pastry",
-                # General store, department store, mall, variety, gift, craft, kiosk
                 "general", "department_store", "mall", "variety_store", "gift", "craft", "kiosk",
-                # Clothing, shoes, accessories
                 "clothes", "shoes", "boutique", "accessories", "jewelry", "watch", "bag",
-                # Other
                 "stationery"
             ]},
             {"key": "amenity", "values": [
@@ -178,14 +181,13 @@ class LocationViewSet(viewsets.ModelViewSet):
                 "bank", "atm", "post_office", "hairdresser", "laundry", "charging_station"
             ]}
         ]
-
-
         try:
-            pois = fetch_osm_pois(location.geometry.geojson, filters, verify=True) # (verify=True para produção)
+            pois = fetch_osm_pois(location.geometry.geojson, filters, verify=True)
             return Response(pois)
         except Exception as e:
-            return Response({"error": "Erro ao consultar Overpass API", "details": str(e)}, status=503)    
+            return Response({"error": "Erro ao consultar Overpass API", "details": str(e)}, status=503)
 
+    @method_decorator(cache_page(60 * 60 * 24))
     @action(detail=True, methods=['get'])
     def health(self, request, pk=None):
         location = self.get_object()
