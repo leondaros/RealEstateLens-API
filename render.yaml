@@ -15,6 +15,6 @@ services:
       - key: ALLOWED_HOSTS
         value: reallens-api.onrender.com
       - key: FRONTEND_ORIGIN
-        value: https://reallens-frontend.netlify.app
+        value: https://reallens.netlify.app
       - key: BACKEND_ORIGIN
         value: https://reallens-api.onrender.com
