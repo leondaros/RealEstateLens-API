@@ -54,7 +54,7 @@ class LocationSerializer(serializers.ModelSerializer):
     def get_center(self, obj):
         centroid = obj.center()
         if centroid:
-            return {'type': 'Point', 'coordinates': [centroid.y, centroid.x]}
+            return {'type': 'Point', 'coordinates': [centroid.x, centroid.y]}
         return None
 
 class LocationPropertiesSerializer(serializers.ModelSerializer):

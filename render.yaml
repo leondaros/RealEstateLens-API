@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: reallens-api
+    runtime: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /health/
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: DATABASE_URL
+        sync: false   # <- Render não vai colocar nada, você define no painel
+      - key: ALLOWED_HOSTS
+        value: reallens-api.onrender.com
+      - key: FRONTEND_ORIGIN
+        value: https://reallens-frontend.netlify.app
+      - key: BACKEND_ORIGIN
+        value: https://reallens-api.onrender.com

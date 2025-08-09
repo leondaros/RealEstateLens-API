@@ -7,6 +7,10 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from django.http import JsonResponse
+
+def health(_request):
+    return JsonResponse({"status": "ok"})
 
 router = routers.DefaultRouter()
 router.register('users',UserViewSet,basename='Users')
@@ -19,6 +23,7 @@ urlpatterns = [
     path('',include(router.urls)),
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('health/', health),
 ]
 
 if settings.DEBUG:
