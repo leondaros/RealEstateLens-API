@@ -17,7 +17,5 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
-# Roda migrações e coleta estáticos
-RUN python manage.py migrate && python manage.py collectstatic --noinput
 
-CMD ["gunicorn","setup.wsgi:application","--bind","0.0.0.0:10000","--log-file","-"]
+CMD ["sh", "-c", "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn setup.wsgi:application --bind 0.0.0.0:${PORT:-10000} --log-file -"]
