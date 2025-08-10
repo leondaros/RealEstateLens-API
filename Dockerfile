@@ -18,17 +18,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Código
 COPY . /app/
 
-# Collect static (usa settings.py -> STATIC_ROOT + WhiteNoise)
-RUN python manage.py collectstatic --noinput
-
 # ---- Runtime ----
 FROM base AS runtime
 
-# Script de start (migrações + servidor)
+# Script de start
 COPY start.sh /app/start.sh
 RUN chmod +x /app/start.sh
 
-# Render injeta $PORT. Mantemos fallback local 8000.
+# Render injeta $PORT
 ENV PORT=8000
 
 CMD ["/app/start.sh"]
