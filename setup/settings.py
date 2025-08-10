@@ -9,7 +9,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")  # defina no Render
 DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
 # Ex.: "api-seuapp.onrender.com,localhost,127.0.0.1"
-ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "*").split(",")]
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get("ALLOWED_HOSTS", "").split(",") if h.strip()]
 
 # --- Apps ---
 INSTALLED_APPS = [
@@ -135,7 +135,9 @@ CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [FRONTEND_ORIGIN] if FRONTEND_ORIGIN else []
 
 # CSRF requer hostname exato e HTTPS
-CSRF_TRUSTED_ORIGINS = []
+CSRF_TRUSTED_ORIGINS = [
+    "https://reallens-api.onrender.com",
+]
 if FRONTEND_ORIGIN:
     CSRF_TRUSTED_ORIGINS.append(FRONTEND_ORIGIN)
 # BACKEND_ORIGIN opcional: ex.: https://api-seuapp.onrender.com
@@ -153,6 +155,7 @@ INTERNAL_IPS = ["127.0.0.1"]
 
 # --- Segurança para proxy/HTTPS do Render ---
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+USE_X_FORWARDED_HOST = True
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SECURE = not DEBUG
 SECURE_SSL_REDIRECT = not DEBUG
