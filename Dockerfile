@@ -1,20 +1,34 @@
-FROM python:3.12-slim
+# ---- Base ----
+FROM python:3.11-slim AS base
 
-# libs nativas para GeoDjango
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# Dependências do sistema (Postgres/GDAL p/ django.contrib.gis)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gdal-bin libgdal-dev libgeos-dev proj-bin proj-data libproj-dev build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
-ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
-ENV C_INCLUDE_PATH=/usr/include/gdal
-ENV GDAL_DATA=/usr/share/gdal
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV PORT=10000
+    build-essential libpq-dev gdal-bin libgdal-dev \
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
 
-CMD ["gunicorn","setup.wsgi:application","--bind","0.0.0.0:10000","--log-file","-"]
+# Requisitos
+COPY requirements.txt /app/
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Código
+COPY . /app/
+
+# Collect static (usa settings.py -> STATIC_ROOT + WhiteNoise)
+RUN python manage.py collectstatic --noinput
+
+# ---- Runtime ----
+FROM base AS runtime
+
+# Script de start (migrações + servidor)
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
+# Render injeta $PORT. Mantemos fallback local 8000.
+ENV PORT=8000
+
+CMD ["/app/start.sh"]
