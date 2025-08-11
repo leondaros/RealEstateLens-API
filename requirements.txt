@@ -16,6 +16,7 @@ six==1.16.0
 sqlparse==0.5.1
 tzdata==2024.2
 urllib3==2.5.0
+uvicorn[standard]
 gunicorn
 psycopg[binary]
 dj-database-url
