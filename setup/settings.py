@@ -136,7 +136,8 @@ CORS_ALLOWED_ORIGINS = [FRONTEND_ORIGIN] if FRONTEND_ORIGIN else []
 
 # CSRF requer hostname exato e HTTPS
 CSRF_TRUSTED_ORIGINS = [
-    "https://reallens-api.onrender.com",
+    "https://reallens-app.netlify.app",
+    "https://*.onrender.com",
 ]
 if FRONTEND_ORIGIN:
     CSRF_TRUSTED_ORIGINS.append(FRONTEND_ORIGIN)
@@ -167,3 +168,5 @@ SECURE_HSTS_PRELOAD = not DEBUG
 
 # --- Default PK ---
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+CORS_ALLOW_CREDENTIALS = True
