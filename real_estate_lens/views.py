@@ -14,7 +14,7 @@ from real_estate_lens.serializers import CustomTokenObtainPairSerializer
 import os
 import certifi
 os.environ['SSL_CERT_FILE'] = certifi.where()
-from real_estate_lens.utils.osm_utils import fetch_osm_pois
+from real_estate_lens.utils.osm_utils import fetch_osm_count_in_poly
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 
@@ -123,12 +123,10 @@ class LocationViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['get'])
     def schools(self, request, pk=None):
         location = self.get_object()
-        filters = [
-            {"key": "amenity", "values": ["school", "college", "university"]}
-        ]
+        filters = [{"key": "amenity", "values": ["school", "college", "university"]}]
         try:
-            pois = fetch_osm_pois(location.geometry.geojson, filters, verify=True)
-            return Response(pois)
+            result = fetch_osm_count_in_poly(location.geometry.geojson, filters, verify=True)
+            return Response({"count": int(result)})
         except Exception as e:
             return Response({"error": "Erro ao consultar Overpass API", "details": str(e)}, status=503)
 
@@ -138,15 +136,15 @@ class LocationViewSet(viewsets.ModelViewSet):
         location = self.get_object()
         filters = [
             {"key": "leisure", "values": [
-                "park", "playground", "sports_centre", "pitch", 
+                "park", "playground", "sports_centre", "pitch",
                 "stadium", "recreation_ground", "dog_park"
             ]},
             {"key": "natural", "values": ["beach"]},
-            {"key": "tourism", "values": ["picnic_site", "viewpoint", "zoo"]}
+            {"key": "tourism", "values": ["picnic_site", "viewpoint", "zoo"]},
         ]
         try:
-            pois = fetch_osm_pois(location.geometry.geojson, filters, verify=True)
-            return Response(pois)
+            count = fetch_osm_count_in_poly(location.geometry.geojson, filters, verify=True)
+            return Response({"count": int(count)})
         except Exception as e:
             return Response({"error": "Erro ao consultar Overpass API", "details": str(e)}, status=503)
 
@@ -156,11 +154,11 @@ class LocationViewSet(viewsets.ModelViewSet):
         location = self.get_object()
         filters = [
             {"key": "amenity", "values": ["bus_station", "taxi"]},
-            {"key": "public_transport", "values": ["station", "platform"]}
+            {"key": "public_transport", "values": ["station", "platform"]},
         ]
         try:
-            pois = fetch_osm_pois(location.geometry.geojson, filters, verify=True)
-            return Response(pois)
+            count = fetch_osm_count_in_poly(location.geometry.geojson, filters, verify=True)
+            return Response({"count": int(count)})
         except Exception as e:
             return Response({"error": "Erro ao consultar Overpass API", "details": str(e)}, status=503)
 
@@ -179,11 +177,12 @@ class LocationViewSet(viewsets.ModelViewSet):
             {"key": "amenity", "values": [
                 "restaurant", "ice_cream", "fast_food", "cafe", "bar", "food_court",
                 "bank", "atm", "post_office", "hairdresser", "laundry", "charging_station"
-            ]}
+            ]},
         ]
         try:
-            pois = fetch_osm_pois(location.geometry.geojson, filters, verify=True)
-            return Response(pois)
+            # UNION evita contagem dupla de elementos que batem em mais de um filtro (ex.: ice_cream)
+            count = fetch_osm_count_in_poly(location.geometry.geojson, filters, verify=True)
+            return Response({"count": int(count)})
         except Exception as e:
             return Response({"error": "Erro ao consultar Overpass API", "details": str(e)}, status=503)
 
@@ -193,24 +192,15 @@ class LocationViewSet(viewsets.ModelViewSet):
         location = self.get_object()
         filters = [
             {"key": "amenity", "values": [
-                "hospital",
-                "clinic",
-                "pharmacy",
-                "doctors",
-                "dentist",
-                "laboratory",
-                "healthcare",
-                "nursing_home",
-                "physiotherapist",
-                "veterinary"
+                "hospital", "clinic", "pharmacy", "doctors", "dentist", "laboratory",
+                "healthcare", "nursing_home", "physiotherapist", "veterinary"
             ]}
         ]
         try:
-            pois = fetch_osm_pois(location.geometry.geojson, filters, verify=True)
-            return Response(pois)
+            count = fetch_osm_count_in_poly(location.geometry.geojson, filters, verify=True)
+            return Response({"count": int(count)})
         except Exception as e:
             return Response({"error": "Erro ao consultar Overpass API", "details": str(e)}, status=503)
-
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer

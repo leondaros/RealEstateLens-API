@@ -1,49 +1,45 @@
-import requests
-from shapely.geometry import shape, Point
-import json
+# services/osm.py
+import json, requests
+from shapely.geometry import shape
 
-def fetch_osm_pois(polygon_geojson, filters, timeout=30, verify=True):
+def _polygon_to_poly_string(polygon_geojson, max_points=2000, simplify_tolerance=0.0):
+    geom = shape(json.loads(polygon_geojson))
+    if geom.geom_type == "MultiPolygon":
+        geom = max(geom.geoms, key=lambda g: g.area)
+    if simplify_tolerance > 0:
+        geom = geom.simplify(simplify_tolerance, preserve_topology=True)
+    coords = list(geom.exterior.coords)
+    if len(coords) > max_points:
+        step = max(1, len(coords) // max_points)
+        coords = coords[::step]
+    return " ".join(f"{y} {x}" for x, y in coords)
+
+def fetch_osm_count_in_poly(polygon_geojson, filters, timeout=25, verify=True):
     """
-    Busca POIs via Overpass API de acordo com os filtros desejados.
-
-    polygon_geojson: string GeoJSON do polígono
-    filters: lista de dicts, ex: [{"key": "amenity", "values": ["school","college","university"]}]
+    Faz um único UNION com todos os key=value dentro do polígono e retorna 1 count deduplicado.
     """
-    polygon = shape(json.loads(polygon_geojson))
-    minx, miny, maxx, maxy = polygon.bounds
+    poly = _polygon_to_poly_string(polygon_geojson, simplify_tolerance=0.00005)
 
-    query_blocks = []
+    # Um único conjunto (nwr) com todas as combinações key=value
+    lines = []
     for f in filters:
-        key = f['key']
-        for value in f['values']:
-            for el_type in ['node', 'way', 'relation']:
-                query_blocks.append(f'{el_type}["{key}"="{value}"]({miny},{minx},{maxy},{maxx});')
-    query = f"""
-    [out:json][timeout:25];
-    (
-        {''.join(query_blocks)}
-    );
-    out center;
-    """
-    overpass_url = "https://overpass-api.de/api/interpreter"
-    response = requests.post(overpass_url, data=query, timeout=timeout, verify=verify)
-    response.raise_for_status()
-    data = response.json().get("elements", [])
+        key = f["key"]
+        for v in f["values"]:
+            lines.append(f'nwr["{key}"="{v}"](poly:"{poly}");')
 
-    # Filtra pelo polígono real
-    pois = []
-    for el in data:
-        if "lat" in el and "lon" in el:
-            pt = Point(el["lon"], el["lat"])
-        elif "center" in el:
-            pt = Point(el["center"]["lon"], el["center"]["lat"])
-        else:
-            continue
-        if polygon.contains(pt):
-            pois.append({
-                "name": el.get("tags", {}).get("name"),
-                "lat": pt.y,
-                "lon": pt.x,
-                "tags": el.get("tags", {})
-            })
-    return pois
+    query = f'[out:json][timeout:{timeout}];\n(\n  ' + "\n  ".join(lines) + '\n);\nout count;'
+
+    r = requests.post(
+        "https://overpass-api.de/api/interpreter",
+        data=query.encode("utf-8"),
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Accept-Encoding": "gzip",
+        },
+        timeout=timeout,
+        verify=verify,
+    )
+    r.raise_for_status()
+    data = r.json()
+    elems = [el for el in data.get("elements", []) if el.get("type") == "count"]
+    return int(elems[0]["tags"]["total"]) if elems else 0
