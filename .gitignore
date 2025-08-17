@@ -1,18 +1,62 @@
-# created by virtualenv automatically
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
+# ====================================
+# Python / Django
+# ====================================
+__pycache__/
 *.pyc
-
+*.pyo
+*.pyd
 *.log
 *.pot
-*/*/*/__pycache__/
-*/*/__pycache__/
-*/__pycache__/
-*.csv
+*.py[cod]
 
-/setup/__pycache__
-/db.sqlite3
+# SQLite (somente para dev)
+db.sqlite3
+
+# Virtualenv
+.venv/
+env/
+venv/
+ENV/
+
+# Local configs
+*.local
+*.env
+.env.*
+
+# Media / Static (gerados em runtime)
+media/
+staticfiles/
+build/
+dist/
+
+# ====================================
+# Node / React
+# ====================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Build output
+/build
+/.parcel-cache
+/.next
+/out
+coverage/
+
+# ====================================
+# IDE / Editor
+# ====================================
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ====================================
+# Dumps / Backups
+# ====================================
+*.dump
+*.bak
+*.backup
+*.sql

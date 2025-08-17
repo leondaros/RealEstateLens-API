@@ -1,0 +1,28 @@
+{
+  "name": "realestatelens-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leondaros/RealEstateLens-API.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/leondaros/RealEstateLens-API/issues"
+  },
+  "homepage": "https://github.com/leondaros/RealEstateLens-API#readme",
+  "dependencies": {
+    "@mui/icons-material": "^7.3.1",
+    "@mui/material": "^7.3.1",
+    "leaflet": "^1.9.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.8.1"
+  }
+}
